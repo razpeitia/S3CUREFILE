@@ -118,13 +118,18 @@ if __name__ == "__main__":
     # mainVerify()
     # mainGenerateHashes('D:\\PASAR A USB\\')
     logFile = 's3curefilelog.csv'
+    xmlDB = 's3curefiledb.xml'
     if not logExists(logFile):
         initLog(logFile)
     # Check the command line arguments
     if len(sys.argv) == 2:
         writeToLog(logFile, 'cmd line received: ' + sys.argv[1])
         if sys.argv[1] == '-v':  # <<<--- if the command passed was -v, then verify files in the path against the XML database
-            mainVerify()
+            if os.path.exists(xmlDB):
+                mainVerify()
+            else:
+                writeToLog(logFile, '* WARNING 04 * xml database does not exist ')
+                exit(2)
         else:
             dirArgument = sys.argv[1] + '\\' # it works if the path is ended in \ or not
             if not os.path.exists(dirArgument):
