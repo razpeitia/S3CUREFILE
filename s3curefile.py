@@ -22,14 +22,14 @@ def mainGenerateHashes(pathToRead):
     root = elTree.Element('AllItems')     # create the element Allitems for XML root
     tree = elTree.ElementTree(root)       # and pass it to the created tree
     BLOCKSIZE = 65536 # Block size to read in case of a large file.
-    for fileName in glob.iglob(pathToRead + '**\*.*', recursive=True): 
+    for fileName in glob.iglob(pathToRead + '**\*.*', recursive=True):
         hasher = hashlib.sha256()
         with open(fileName, 'rb') as afile:
             buf = afile.read(BLOCKSIZE)
             while len(buf) > 0:  # as long as a block was read
                 hasher.update(buf)
                 buf = afile.read(BLOCKSIZE)
-        afile.close()        
+        afile.close()
         print(hasher.hexdigest())
         root.append(dict_to_elem({'filename':fileName, 'SHA256hash': hasher.hexdigest()}))
         countFiles += 1
@@ -53,14 +53,14 @@ def mainVerify():
     filesMissing = 0
     verifyPath = dom.findtext("FILEITEM/basepath")                             #<<<--- Extract the entire path and filename
     writeToLog(logFileName, '>>> HASH VERIFICATION STARTED ' + verifyPath)
-    print(">>>> ", verifyPath)     
+    print(">>>> ", verifyPath)
     BLOCKSIZE = 65536 # Block size to read in case of a large file.
     # Next for block: traverse 1 by 1 all the FILEITEMs until len -1
     # because the last FILEITEM is the base path, and file counter.
-    for fileItemsIndex in range(0,len(fileItems)-1):                                           
+    for fileItemsIndex in range(0,len(fileItems)-1):
         # then for every FILEITEM in turn, extract the filename frpm XML DB and the paired SHA256hash
         evalList = []
-        for chld in fileItems[fileItemsIndex]: 
+        for chld in fileItems[fileItemsIndex]:
             evalList.append(chld.text)
         # print('File: ' + files[fil].text, ' Hash: ', hashes[fil].text)
         print('evalList: ', evalList)
@@ -102,7 +102,7 @@ def writeToLog(logName, message):
         logFileWriter = csv.writer(logFile)
         logFileWriter.writerow([time.strftime('%d/%m/%Y ') + time.strftime('%H:%M:%S'), '[' + message + '] > '])
     logFile.close()
-    
+
 
 def dict_to_elem(dictionary):
     item = elTree.Element('FILEITEM') # Item names cannot contain spaces for proper XML read in XML editors.
@@ -129,7 +129,7 @@ if __name__ == "__main__":
                 mainVerify()
             else:
                 writeToLog(logFile, '* WARNING 04 * xml database does not exist ')
-                exit(2)
+                sys.exit(2)
         else:
             dirArgument = sys.argv[1] + '\\' # it works if the path is ended in \ or not
             if not os.path.exists(dirArgument):
@@ -139,7 +139,7 @@ if __name__ == "__main__":
             else:
                 print(dirArgument)
                 mainGenerateHashes(dirArgument) # <<<--- If the command passed was a path, generate the hashes
-        exit(0)
+        sys.exit(0)
     else:
         writeToLog(logFile, '* WARNING 03 * incorrect cmd line USAGE: s3curefile (PATH or -v)')
-        exit(1)
+        sys.exit(1)
